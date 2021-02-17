@@ -6,7 +6,7 @@ const moment = require("moment");
 const app = express();
 app.use(cors());
 const port = 3000;
-const hostname = "localhost";
+// const hostname = "localhost";
 const URL1 = ({ id, key, page = "" }) =>
   `https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=50&fields=items/contentDetails/videoId,nextPageToken&key=${key}&playlistId=${id}&pageToken=${page}`;
 const URL2 = (id, key) =>
@@ -52,6 +52,9 @@ const convertFromMilliseconds = (durationMilliseconds) => {
 
   return returnString;
 };
+app.get("/", (req, res) => {
+  res.send("<h1>Youtube Playlist Statistics Extension</h1>");
+});
 
 app.get("/youtube", async (req, res) => {
   const playlistLink = req.query.url;
@@ -63,12 +66,14 @@ app.get("/youtube", async (req, res) => {
     playlistId = getId(req.query.url);
   }
   if (playlistId === "WL") {
-    res
-      .status(400)
-      .send({
-        error: "This extension doesn't work for 'Watch Later' playlist.",
-      })
-      .end();
+    return res.status(400).send({
+      error: "This extension doesn't work for 'Watch Later' playlist.",
+    });
+  }
+  if (playlistId === "LL") {
+    return res.status(400).send({
+      error: "This extension doesn't work for 'Liked Videos' playlist.",
+    });
   }
   console.log("playlistID", playlistId);
   let nextPage = "";
@@ -97,8 +102,7 @@ app.get("/youtube", async (req, res) => {
     } catch (e) {
       console.log(e.message);
       returnObject = { error: "Playlist not found." };
-      res.send(returnObject);
-      break;
+      return res.status(404).send(returnObject);
     }
     urlList = vidList.join(",");
     count += vidList.length;
@@ -140,9 +144,9 @@ app.get("/youtube", async (req, res) => {
       break;
     }
   }
-  res.send(returnObject);
+  return res.send(returnObject);
 });
 
-app.listen(port, hostname, () => {
-  console.log(`Example app listening at http://${hostname}:${port}`);
+app.listen(port, () => {
+  console.log(`Example app listening at ${port}`);
 });
