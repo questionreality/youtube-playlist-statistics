@@ -147,6 +147,6 @@ app.get("/youtube", async (req, res) => {
   return res.send(returnObject);
 });
 
-app.listen(port, () => {
+app.listen(process.env.PORT || port, () => {
   console.log(`Example app listening at ${port}`);
 });
