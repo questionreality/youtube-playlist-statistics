@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Youtube Playlist Statistics",
   "version": "0.0.1",
-  "description": "Display statistics for Youtube Playlists",
+  "description": "Displays statistics for Youtube Playlists",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
@@ -23,5 +23,5 @@
     "persistent": false
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'; img-src * data: 'self' 'unsafe-eval'",
-  "permissions": ["tabs", "storage", "declarativeContent"]
+  "permissions": ["tabs", "declarativeContent"]
 }

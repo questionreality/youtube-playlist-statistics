@@ -67,7 +67,9 @@ const getTab = () =>
   });
 getTab().then((tab) => {
   console.log(tab.url);
-  fetch(`http://localhost:3000/youtube?url=${tab.url}`)
+  fetch(
+    `https://youtube-playlist-statistics.herokuapp.com/youtube?url=${tab.url}`
+  )
     .then((res) => res.json())
     .then((data) => {
       loader.style.display = "none";
@@ -76,8 +78,8 @@ getTab().then((tab) => {
       } else {
         const { avg, count, total } = data;
         numberText.innerText = `Number of Videos: ${count}`;
-        lengthText.innerText = `Total Length of Playlist: ${total}`;
-        avgText.innerText = `Average Length of Video: ${avg}`;
+        lengthText.innerText = `Total Duration of Playlist: ${total}`;
+        avgText.innerText = `Average Duration of Video: ${avg}`;
       }
     })
     .catch((e) => console.log(e.message));
