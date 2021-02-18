@@ -1,0 +1,12 @@
+npm install -g heroku
+
+heroku login
+heroku create youtube-playlist-statistics
+heroku git:remote -a youtube-playlist-statistics
+
+In root of project, run these commands:
+git subtree push --prefix server heroku master
+
+(server is basically path to the subdirectory)
+
+
