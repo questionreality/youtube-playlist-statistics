@@ -1,10 +1,18 @@
 require("dotenv").config();
+const { promisify } = require("util");
 const cors = require("cors");
+const redis = require("redis");
 const express = require("express");
 const axios = require("axios");
 const moment = require("moment");
 const app = express();
 app.use(cors());
+const redisClient = redis.createClient(process.env.REDIS_URL);
+redisClient.on("error", function (error) {
+  console.error(error);
+});
+const getAsync = promisify(redisClient.get).bind(redisClient);
+// const setExAsync = promisify(redisClient.setex).bind(redisClient);
 const port = 3000;
 // const hostname = "localhost";
 const URL1 = ({ id, key, page = "" }) =>
@@ -60,22 +68,6 @@ app.get("/youtube", async (req, res) => {
   const playlistLink = req.query.url;
   // const playlistId = getId(playlistLink);
   let playlistID;
-  if (req.query.list) {
-    playlistId = req.query.list;
-  } else {
-    playlistId = getId(req.query.url);
-  }
-  if (playlistId === "WL") {
-    return res.status(400).send({
-      error: "This extension doesn't work for 'Watch Later' playlist.",
-    });
-  }
-  if (playlistId === "LL") {
-    return res.status(400).send({
-      error: "This extension doesn't work for 'Liked Videos' playlist.",
-    });
-  }
-  console.log("playlistID", playlistId);
   let nextPage = "";
   let count = 0;
   let time = 0;
@@ -84,67 +76,107 @@ app.get("/youtube", async (req, res) => {
   // tsl = findTimeSlice(),
   let returnObject = {};
   let trialCounter = 0;
-  while (true) {
-    vidList = [];
-    trialCounter++;
-    console.log(trialCounter);
-    try {
-      // console.log(URL1({ id: playlistId, key: apiKey, page: nextPage }));
-      //make the first request (await)
-      results = await axios.get(
-        URL1({ id: playlistId, key: apiKey, page: nextPage })
-      );
-      results = results.data;
-      console.log(results["items"]);
-      results["items"].forEach((item) =>
-        vidList.push(item["contentDetails"]["videoId"])
-      );
-    } catch (e) {
-      console.log(e.message);
-      returnObject = { error: "Playlist not found." };
-      return res.status(404).send(returnObject);
-    }
-    urlList = vidList.join(",");
-    count += vidList.length;
-
-    try {
-      let durations = await axios.get(URL2(urlList, apiKey));
-      durations = durations.data.items;
-      console.log(durations);
-      durations.forEach((duration) => {
-        console.log(duration);
-        console.log(
-          moment
-            .duration(duration["contentDetails"]["duration"])
-            .asMilliseconds()
-        );
-        durationSum += moment
-          .duration(duration["contentDetails"]["duration"])
-          .asMilliseconds();
-      });
-    } catch (e) {
-      console.log(e.message);
-    }
-    if (results["nextPageToken"] && count < 500) {
-      nextPage = results["nextPageToken"];
-    } else {
-      if (count >= 500) {
-        returnObject = {
-          error:
-            "This extension doesn't work for playlists with more than 500 videos.",
-        };
-      } else {
-        returnObject = {
-          count: String(count),
-          total: convertFromMilliseconds(durationSum),
-          avg: convertFromMilliseconds(durationSum / count),
-        };
-        console.log(returnObject);
-      }
-      break;
-    }
+  let cachedResponse;
+  if (req.query.list) {
+    playlistId = req.query.list;
+  } else {
+    playlistId = getId(req.query.url);
   }
-  return res.send(returnObject);
+  if (playlistId === "WL" || playlistID === "LL") {
+    returnObject = {
+      error: `This extension doesn't work for ${
+        playlistId === WL ? "Watch Later" : "Liked Videos"
+      } playlist`,
+    };
+    return res.status(400).send(returnObject);
+  }
+  try {
+    cachedResponse = JSON.parse(await getAsync(playlistId));
+  } catch (e) {
+    console.error(e.message);
+  }
+  console.log("redis", cachedResponse);
+  if (cachedResponse) return res.send(cachedResponse);
+  else {
+    while (true) {
+      vidList = [];
+      trialCounter++;
+      console.log(trialCounter);
+      try {
+        // console.log(URL1({ id: playlistId, key: apiKey, page: nextPage }));
+        //make the first request (await)
+        results = await axios.get(
+          URL1({ id: playlistId, key: apiKey, page: nextPage })
+        );
+        results = results.data;
+        // console.log(results["items"]);
+        results["items"].forEach((item) =>
+          vidList.push(item["contentDetails"]["videoId"])
+        );
+      } catch (e) {
+        console.log(e.message);
+        returnObject = { error: "Playlist not found." };
+        redisClient.setex(
+          playlistId,
+          60 * 60,
+          JSON.stringify(returnObject),
+          function (err) {
+            console.error(err);
+          }
+        );
+        return res.status(404).send(returnObject);
+      }
+      urlList = vidList.join(",");
+      count += vidList.length;
+
+      try {
+        let durations = await axios.get(URL2(urlList, apiKey));
+        durations = durations.data.items;
+        // console.log(durations);
+        durations.forEach((duration) => {
+          // console.log(duration);
+          // console.log(
+          //   moment
+          //     .duration(duration["contentDetails"]["duration"])
+          //     .asMilliseconds()
+          // );
+          durationSum += moment
+            .duration(duration["contentDetails"]["duration"])
+            .asMilliseconds();
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
+      if (results["nextPageToken"] && count < 500) {
+        nextPage = results["nextPageToken"];
+      } else {
+        if (count >= 500) {
+          returnObject = {
+            error:
+              "This extension doesn't work for playlists with more than 500 videos.",
+          };
+        } else {
+          returnObject = {
+            count: String(count),
+            total: convertFromMilliseconds(durationSum),
+            avg: convertFromMilliseconds(durationSum / count),
+          };
+          console.log(returnObject);
+        }
+        break;
+      }
+    }
+    console.log(typeof JSON.stringify(returnObject), typeof playlistId);
+    redisClient.setex(
+      playlistId,
+      60 * 60,
+      JSON.stringify(returnObject),
+      function (err) {
+        console.error(err);
+      }
+    );
+    return res.send(returnObject);
+  }
 });
 
 app.listen(process.env.PORT || port, () => {
