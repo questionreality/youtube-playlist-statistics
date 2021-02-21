@@ -46,12 +46,13 @@ const getId = (playlistLink) => {
 // };
 
 const convertFromMilliseconds = (durationMilliseconds) => {
+  const days = moment.duration(durationMilliseconds).days();
   const hours = moment.duration(durationMilliseconds).hours();
   const minutes = moment.duration(durationMilliseconds).minutes();
   const seconds = moment.duration(durationMilliseconds).seconds();
   let returnString = "";
   if (hours !== 0) {
-    returnString = `${hours} hours, `;
+    returnString = `${days * 24 + hours} hours, `;
   }
   if (minutes !== 0) {
     returnString += `${minutes} minutes, `;

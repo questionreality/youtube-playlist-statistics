@@ -1,7 +1,8 @@
 ## Youtube Playlist Statistics Extension
-#### Screenshots:
 
+#### Demo:
 
+<img src="https://media.giphy.com/media/1YVJoTKvn7DfNPYF5N/giphy.gif">
 
 #### How to Run:
 
