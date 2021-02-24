@@ -37,6 +37,6 @@ cd ../extension && yarn start
 
 #### Usage:
 
-The extension will become active when you go to any youtube playlist link. You can click on the icon in the toolbar which will open a popup displaying the statistics for that playlist. 
-I built the extension because I used youtube playlists to study for many of my university courses and had to manually estimate the total time required to complete it. 
-Another use case for it would be finding the total duration of all videos uploaded by any channel. To do so, go to channel->videos->play all. This will open a playlist of all the videos of that channel and you can use the extension to get the total duration of them.
+The extension will become active when you go to any youtube playlist link. You can click on the icon in the toolbar which will open a popup displaying the statistics for that playlist. <br>
+I built the extension because I used youtube playlists to study for many of my university courses and had to manually estimate the total time required to complete it. <br>
+Another use case for it would be finding the total duration of all videos uploaded by any channel. To do so, go to channel->videos->play all. This will open a playlist of all the videos of that channel and you can use the extension to get the total duration of them. <br>
