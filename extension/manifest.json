@@ -4,22 +4,22 @@
   "version": "0.0.1",
   "description": "Displays statistics for Youtube Playlists",
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "16": "src/images/icon16.png",
+    "48": "src/images/icon48.png",
+    "128": "src/images/icon128.png"
   },
   "page_action": {
     "default_title": "Playlist Statistics",
-    "default_popup": "popup.html",
+    "default_popup": "src/views/popup.html",
     "default_icon": {
-      "16": "icon16.png",
-      "32": "icon32.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
+      "16": "src/images/icon16.png",
+      "32": "src/images/icon32.png",
+      "48": "src/images/icon48.png",
+      "128": "src/images/icon128.png"
     }
   },
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["src/js/background.js"],
     "persistent": false
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'; img-src * data: 'self' 'unsafe-eval'",

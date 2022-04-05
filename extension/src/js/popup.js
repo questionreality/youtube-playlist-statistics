@@ -1,4 +1,4 @@
-/* popup.js
+  /* popup.js
  *
  * This file initializes its scripts after the popup has loaded.
  *
