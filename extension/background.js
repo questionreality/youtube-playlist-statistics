@@ -30,6 +30,7 @@
 // When the extension is installed or upgraded ...
 chrome.runtime.onInstalled.addListener(function () {
   // Replace all rules ...
+  chrome.action.disable();
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
     // With a new rule ...
     chrome.declarativeContent.onPageChanged.addRules([
@@ -41,7 +42,7 @@ chrome.runtime.onInstalled.addListener(function () {
           }),
         ],
         // And shows the extension's page action.
-        actions: [new chrome.declarativeContent.ShowPageAction()],
+        actions: [new chrome.declarativeContent.ShowAction()],
       },
     ]);
   });
