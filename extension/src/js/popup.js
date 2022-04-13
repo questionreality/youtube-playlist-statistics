@@ -12,10 +12,12 @@
 const prodUrl = "https://youtube-playlist-statistics.herokuapp.com";
 const devUrl = "http://localhost:3000";
 
+const container = document.querySelector(".container");
 const countText = document.querySelector(".video-count");
 const avgText = document.querySelector(".video-avg");
 const timeRemainingText = document.querySelector(".time-remaining");
 const progressBarCompleted = document.querySelector(".progress-bar-completed");
+const progressBarTotal = document.querySelector(".progress-bar-total");
 const timeCompletedText = document.querySelector(".time-completed");
 const totalDurationText = document.querySelector(".total-duration");
 
@@ -38,17 +40,29 @@ getTab().then((tab) => {
     .then((res) => res.json())
     .then((data) => {
       loader.style.display = "none";
+      container.style.display = "block";
       if (data.error) {
         errorText.innerText = `${data.error}`;
       } else {
-        const { avg, count, total, timeLeft, timeCompleted, videoIndex } = data;
+        const {
+          avg,
+          count,
+          total,
+          timeLeft,
+          timeCompleted,
+          videoIndex,
+          timeCompletedMilliseconds,
+          totalMilliseconds,
+        } = data;
         countText.innerText = `${videoIndex}/${count} videos`;
         avgText.innerText = `${avg} avg duration`;
         timeRemainingText.innerText = `${timeLeft} remaining`;
         timeCompletedText.innerText = `${timeCompleted}`;
         totalDurationText.innerText = `${total}`;
-        progressBarCompleted.style.width = `${timeCompleted / total}`;
-        console.log(timeLeftText);
+        console.log(data);
+        progressBarCompleted.style.width = `${
+          (timeCompletedMilliseconds / totalMilliseconds) * 360
+        }px`;
       }
     })
     .catch((e) => console.log(e.message));

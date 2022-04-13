@@ -52,12 +52,14 @@ const convertFromMilliseconds = (durationMilliseconds) => {
   const seconds = moment.duration(durationMilliseconds).seconds();
   let returnString = "";
   if (hours !== 0) {
-    returnString = `${days * 24 + hours} hours, `;
+    returnString = `${days * 24 + hours}h `;
   }
   if (minutes !== 0) {
-    returnString += `${minutes} minutes, `;
+    returnString += `${minutes}m `;
   }
-  returnString += `${seconds} seconds.`;
+  if (returnString === "") {
+    returnString += `${seconds ?? 0}s`;
+  }
 
   return returnString;
 };
@@ -67,12 +69,15 @@ app.get("/", (req, res) => {
 
 app.get("/youtube", async (req, res) => {
   const playlistLink = req.query.url;
+  const videoIndex = req.query.index ?? 1;
+  console.log({ videoIndex });
   // const playlistId = getId(playlistLink);
   let playlistID;
   let nextPage = "";
   let count = 0;
   let time = 0;
   let durationSum = 0;
+  let timeLeft = moment.duration(0).asMilliseconds();
   let results;
   // tsl = findTimeSlice(),
   let returnObject = {};
@@ -87,12 +92,14 @@ app.get("/youtube", async (req, res) => {
     returnObject = {
       error: `This extension doesn't work for ${
         playlistId === WL ? "Watch Later" : "Liked Videos"
-      } playlist`,
+      } playlist 😅`,
     };
     return res.status(400).send(returnObject);
   }
+
+  const redisKey = `${playlistID}${videoIndex}`;
   try {
-    cachedResponse = JSON.parse(await getAsync(playlistId));
+    cachedResponse = JSON.parse(await getAsync(redisKey));
   } catch (e) {
     console.error(e.message);
   }
@@ -116,7 +123,7 @@ app.get("/youtube", async (req, res) => {
         );
       } catch (e) {
         console.log(e.message);
-        returnObject = { error: "Playlist not found." };
+        returnObject = { error: "Playlist not found. 😔" };
         redisClient.setex(
           playlistId,
           60 * 60,
@@ -134,13 +141,19 @@ app.get("/youtube", async (req, res) => {
         let durations = await axios.get(URL2(urlList, apiKey));
         durations = durations.data.items;
         // console.log(durations);
-        durations.forEach((duration) => {
+        durations.forEach((duration, index) => {
           // console.log(duration);
           // console.log(
           //   moment
           //     .duration(duration["contentDetails"]["duration"])
           //     .asMilliseconds()
           // );
+          console.log({ videoIndex, index });
+          if ((trialCounter - 1) * 50 + (index + 1) >= parseInt(videoIndex)) {
+            timeLeft += moment
+              .duration(duration["contentDetails"]["duration"])
+              .asMilliseconds();
+          }
           durationSum += moment
             .duration(duration["contentDetails"]["duration"])
             .asMilliseconds();
@@ -154,13 +167,19 @@ app.get("/youtube", async (req, res) => {
         if (count >= 500) {
           returnObject = {
             error:
-              "This extension doesn't work for playlists with more than 500 videos.",
+              "This extension doesn't work for playlists with more than 500 videos. 😅",
           };
         } else {
           returnObject = {
             count: String(count),
             total: convertFromMilliseconds(durationSum),
             avg: convertFromMilliseconds(durationSum / count),
+            timeLeft: convertFromMilliseconds(timeLeft),
+            timeCompleted: convertFromMilliseconds(durationSum - timeLeft),
+
+            timeCompletedMilliseconds: durationSum - timeLeft,
+            totalMilliseconds: durationSum,
+            videoIndex: String(videoIndex),
           };
           console.log(returnObject);
         }
@@ -169,7 +188,7 @@ app.get("/youtube", async (req, res) => {
     }
     console.log(typeof JSON.stringify(returnObject), typeof playlistId);
     redisClient.setex(
-      playlistId,
+      redisKey,
       60 * 60,
       JSON.stringify(returnObject),
       function (err) {

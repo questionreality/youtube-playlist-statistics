@@ -1,10 +1,14 @@
+html {
+  font-size: 10px;
+}
 body {
   height: auto;
   width: 400px;
-  padding: 10px;
+  padding: 10px 20px;
   background: #202020; /* fallback for old browsers */
   color: #e5e5e5;
 }
+/* LOADER */
 .loader {
   width: 100px;
   height: 100px;
@@ -12,9 +16,7 @@ body {
   position: relative;
   margin: 0 auto;
 }
-.text {
-  margin: 10px 0px;
-}
+
 .loader:before,
 .loader:after {
   content: "";
@@ -51,4 +53,48 @@ body {
     -o-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+
+/* HAPPY PATH */
+
+.container {
+  display: none;
+  flex-direction: column;
+  /* gap shouldn't be at the ends */
+}
+
+.stats {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  font-size: 1.2rem;
+}
+
+.duration {
+  display: flex;
+  flex-direction: column;
+}
+.time-remaining {
+  margin-bottom: 2rem;
+  font-weight: bold;
+  color: #fbcbd1;
+  font-size: 1.6rem;
+}
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+}
+.progress-bar-total {
+  height: 10px;
+  background-color: #fff;
+}
+.progress-bar-completed {
+  background-color: #f36c7d;
+  height: 10px;
+}
+.progress-bar-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
 }
