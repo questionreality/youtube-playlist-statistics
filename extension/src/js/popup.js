@@ -1,4 +1,4 @@
-  /* popup.js
+/* popup.js
  *
  * This file initializes its scripts after the popup has loaded.
  *
@@ -12,9 +12,13 @@
 const prodUrl = "https://youtube-playlist-statistics.herokuapp.com";
 const devUrl = "http://localhost:3000";
 
-const numberText = document.querySelector(".number-text");
-const lengthText = document.querySelector(".length-text");
-const avgText = document.querySelector(".avg-text");
+const countText = document.querySelector(".video-count");
+const avgText = document.querySelector(".video-avg");
+const timeRemainingText = document.querySelector(".time-remaining");
+const progressBarCompleted = document.querySelector(".progress-bar-completed");
+const timeCompletedText = document.querySelector(".time-completed");
+const totalDurationText = document.querySelector(".total-duration");
+
 const errorText = document.querySelector(".error-text");
 const loader = document.querySelector(".loader");
 
@@ -37,10 +41,14 @@ getTab().then((tab) => {
       if (data.error) {
         errorText.innerText = `${data.error}`;
       } else {
-        const { avg, count, total } = data;
-        numberText.innerText = `Number of Videos: ${count}`;
-        lengthText.innerText = `Total Duration of Playlist: ${total}`;
-        avgText.innerText = `Average Duration of Video: ${avg}`;
+        const { avg, count, total, timeLeft, timeCompleted, videoIndex } = data;
+        countText.innerText = `${videoIndex}/${count} videos`;
+        avgText.innerText = `${avg} avg duration`;
+        timeRemainingText.innerText = `${timeLeft} remaining`;
+        timeCompletedText.innerText = `${timeCompleted}`;
+        totalDurationText.innerText = `${total}`;
+        progressBarCompleted.style.width = `${timeCompleted / total}`;
+        console.log(timeLeftText);
       }
     })
     .catch((e) => console.log(e.message));

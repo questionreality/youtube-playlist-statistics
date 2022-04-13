@@ -2,7 +2,7 @@ body {
   height: auto;
   width: 400px;
   padding: 10px;
-  background: #2d4059; /* fallback for old browsers */
+  background: #202020; /* fallback for old browsers */
   color: #e5e5e5;
 }
 .loader {
