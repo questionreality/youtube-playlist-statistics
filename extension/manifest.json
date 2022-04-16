@@ -21,5 +21,11 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["tabs", "declarativeContent"]
+  "content_scripts": [
+    {
+      "matches": ["https://*.youtube.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "permissions": ["tabs", "declarativeContent", "scripting"]
 }

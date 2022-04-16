@@ -29,7 +29,7 @@
 
 // When the extension is installed or upgraded ...
 chrome.runtime.onInstalled.addListener(function () {
-  // Replace all rules ...
+  // Replace all rules <div className=""></div>
   chrome.action.disable();
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
     // With a new rule ...
@@ -41,9 +41,40 @@ chrome.runtime.onInstalled.addListener(function () {
             pageUrl: { urlMatches: "youtube.*list=" },
           }),
         ],
+
         // And shows the extension's page action.
         actions: [new chrome.declarativeContent.ShowAction()],
       },
     ]);
   });
 });
+// add the listener for the popup over here
+// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+//   if (request.from === "popup") {
+//     chrome.scripting.executeScript({
+//       target: { tabId: request.tabId },
+//       files: ["content.js"],
+//     });
+//     chrome.runtime.sendMessage(
+//       { from: "background", to: "content" },
+//       function (response) {
+//         console.log(response);
+//       }
+//     );
+//     sendResponse("message received from popup in background");
+//   }
+//   if (request.from === "content") {
+//     console.log({ request });
+//     chrome.runtime.sendMessage(
+//       {
+//         from: "background",
+//         to: "popup",
+//         durationPlayed: request.durationPlayed,
+//       },
+//       function (response) {
+//         console.log(response);
+//       }
+//     );
+//     sendResponse("message received from content in background");
+//   }
+// });
