@@ -91,7 +91,7 @@ app.get("/youtube", async (req, res) => {
   if (playlistId === "WL" || playlistID === "LL") {
     returnObject = {
       error: `This extension doesn't work for ${
-        playlistId === WL ? "Watch Later" : "Liked Videos"
+        playlistId === "WL" ? "Watch Later" : "Liked Videos"
       } playlist 😅`,
     };
     return res.status(400).send(returnObject);
