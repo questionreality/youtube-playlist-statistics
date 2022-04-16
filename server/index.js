@@ -45,24 +45,24 @@ const getId = (playlistLink) => {
 //   return timeSlice;
 // };
 
-const convertFromMilliseconds = (durationMilliseconds) => {
-  const days = moment.duration(durationMilliseconds).days();
-  const hours = moment.duration(durationMilliseconds).hours();
-  const minutes = moment.duration(durationMilliseconds).minutes();
-  const seconds = moment.duration(durationMilliseconds).seconds();
-  let returnString = "";
-  if (hours !== 0) {
-    returnString = `${days * 24 + hours}h `;
-  }
-  if (minutes !== 0) {
-    returnString += `${minutes}m `;
-  }
-  if (returnString === "") {
-    returnString += `${seconds ?? 0}s`;
-  }
+// const convertFromMilliseconds = (durationMilliseconds) => {
+//   const days = moment.duration(durationMilliseconds).days();
+//   const hours = moment.duration(durationMilliseconds).hours();
+//   const minutes = moment.duration(durationMilliseconds).minutes();
+//   const seconds = moment.duration(durationMilliseconds).seconds();
+//   let returnString = "";
+//   if (hours !== 0) {
+//     returnString = `${days * 24 + hours}h `;
+//   }
+//   if (minutes !== 0) {
+//     returnString += `${minutes}m `;
+//   }
+//   if (returnString === "") {
+//     returnString += `${seconds ?? 0}s`;
+//   }
 
-  return returnString;
-};
+//   return returnString;
+// };
 app.get("/", (req, res) => {
   res.send("<h1>Youtube Playlist Statistics Extension</h1>");
 });
@@ -172,11 +172,6 @@ app.get("/youtube", async (req, res) => {
         } else {
           returnObject = {
             count: String(count),
-            total: convertFromMilliseconds(durationSum),
-            avg: convertFromMilliseconds(durationSum / count),
-            timeLeft: convertFromMilliseconds(timeLeft),
-            timeCompleted: convertFromMilliseconds(durationSum - timeLeft),
-
             timeCompletedMilliseconds: durationSum - timeLeft,
             totalMilliseconds: durationSum,
             videoIndex: String(videoIndex),
