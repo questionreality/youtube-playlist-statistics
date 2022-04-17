@@ -8,6 +8,24 @@
  * A port to the active tab is open to send messages to its in-content.js script.
  *
  */
+const convertFromMilliseconds = (durationMilliseconds) => {
+  const days = moment.duration(durationMilliseconds).days();
+  const hours = moment.duration(durationMilliseconds).hours();
+  const minutes = moment.duration(durationMilliseconds).minutes();
+  const seconds = moment.duration(durationMilliseconds).seconds();
+  let returnString = "";
+  if (hours !== 0) {
+    returnString = `${days * 24 + hours}h `;
+  }
+  if (minutes !== 0) {
+    returnString += `${minutes}m `;
+  }
+  if (returnString === "") {
+    returnString += `${seconds ?? 0}s`;
+  }
+
+  return returnString;
+};
 
 const prodUrl = "https://youtube-playlist-statistics.herokuapp.com";
 const devUrl = "http://localhost:3000";
@@ -23,6 +41,7 @@ const totalDurationText = document.querySelector(".total-duration");
 
 const errorText = document.querySelector(".error-text");
 const loader = document.querySelector(".loader");
+let durationPlayedMilliseconds = 0;
 
 const getTab = () =>
   new Promise((resolve) => {
@@ -36,33 +55,51 @@ const getTab = () =>
   });
 getTab().then((tab) => {
   console.log(tab.url);
+
+  chrome.tabs.sendMessage(
+    tab.id,
+    { from: "popup", to: "content" },
+    function (response) {
+      console.log("message received from content page", response);
+
+      durationPlayedMilliseconds = (response?.durationPlayed ?? 0) * 1000;
+    }
+  );
+
   fetch(`${devUrl}/youtube?url=${tab.url}`)
     .then((res) => res.json())
     .then((data) => {
       loader.style.display = "none";
-      container.style.display = "block";
+
       if (data.error) {
         errorText.innerText = `${data.error}`;
       } else {
+        container.style.display = "block";
         const {
-          avg,
           count,
-          total,
-          timeLeft,
-          timeCompleted,
           videoIndex,
           timeCompletedMilliseconds,
           totalMilliseconds,
         } = data;
+        const total = convertFromMilliseconds(totalMilliseconds);
+        const avg = convertFromMilliseconds(totalMilliseconds / count);
+        const timeLeft = convertFromMilliseconds(
+          totalMilliseconds -
+            (timeCompletedMilliseconds + durationPlayedMilliseconds)
+        );
+        const timeCompleted = convertFromMilliseconds(
+          timeCompletedMilliseconds + durationPlayedMilliseconds
+        );
+
         countText.innerText = `${videoIndex}/${count} videos`;
         avgText.innerText = `${avg} avg duration`;
         timeRemainingText.innerText = `${timeLeft} remaining`;
         timeCompletedText.innerText = `${timeCompleted}`;
         totalDurationText.innerText = `${total}`;
-        console.log(data);
         progressBarCompleted.style.width = `${
           (timeCompletedMilliseconds / totalMilliseconds) * 360
         }px`;
+        console.log(progressBarCompleted.style.width);
       }
     })
     .catch((e) => console.log(e.message));

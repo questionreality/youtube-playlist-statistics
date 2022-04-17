@@ -27,7 +27,7 @@ body {
   height: 100%;
   border-radius: 100%;
   border: 10px solid transparent;
-  border-top-color: #ed213a;
+  border-top-color: #f36c7d;
 }
 
 .loader:before {
@@ -96,5 +96,8 @@ body {
 .progress-bar-text {
   display: flex;
   justify-content: space-between;
+  font-size: 1.2rem;
+}
+.error-text {
   font-size: 1.2rem;
 }
