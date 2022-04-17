@@ -97,7 +97,8 @@ app.get("/youtube", async (req, res) => {
     return res.status(400).send(returnObject);
   }
 
-  const redisKey = `${playlistID}${videoIndex}`;
+  const redisKey = `${playlistId}${videoIndex}`;
+  console.log({ redisKey });
   try {
     cachedResponse = JSON.parse(await getAsync(redisKey));
   } catch (e) {
