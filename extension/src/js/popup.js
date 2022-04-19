@@ -97,8 +97,11 @@ getTab().then((tab) => {
         timeCompletedText.innerText = `${timeCompleted}`;
         totalDurationText.innerText = `${total}`;
         progressBarCompleted.style.width = `${
-          (timeCompletedMilliseconds / totalMilliseconds) * 360
+          ((timeCompletedMilliseconds + durationPlayedMilliseconds) /
+            totalMilliseconds) *
+          360
         }px`;
+
         console.log(progressBarCompleted.style.width);
       }
     })
